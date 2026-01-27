@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "administrator",
+    "password": "echoAdza32",
+    "database": "member_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "administrator",
+    "password": "echoAdza32",
+    "database": "member_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "administrator",
+    "password": "echoAdza32",
+    "database": "member_db",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}

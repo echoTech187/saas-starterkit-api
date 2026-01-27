@@ -1,0 +1,101 @@
+services:
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    depends_on:
+      # - admin-services
+      - api-services
+      # - publishing-services
+    command: >-
+      /bin/sh -c '
+      if [ ! -f /etc/letsencrypt/live/https://saas-echo.web.id/fullchain.pem ] || [ ! -f /etc/letsencrypt/live/https://saas-echo.web.id/privkey.pem ]; then
+        echo "Generating dummy certificate for saas-echo.web.id...";
+        apk add --no-cache openssl;
+        mkdir -p /etc/letsencrypt/live/https://saas-echo.web.id;
+        openssl req -x509 -nodes -newkey rsa:4096 -days 1 -keyout /etc/letsencrypt/live/https://saas-echo.web.id/privkey.pem -out /etc/letsencrypt/live/https://saas-echo.web.id/fullchain.pem -subj "/CN=localhost";
+      fi;
+      while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"
+      '
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  mailer-services:
+    image: mailhog/mailhog:latest
+    ports:
+      - "587:587" # SMTP
+      - "8025:8025" # Web UI
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8025"]
+
+  # -----------------------------------------------------------
+  # 4. BACKEND APPLICATIONS
+  # -----------------------------------------------------------
+
+  # admin-services:
+  #   build:
+  #     context: ./admin-services
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     DB_HOST: saas-starterkit-db.c5mycw64syxg.ap-southeast-1.rds.amazonaws.com
+  #     DB_USER: administrator
+  #     DB_PASSWORD: echoAdza3205
+  #     DB_PORT: 3306
+  #     DB_NAME: saas-starterkit-db
+  #   ports:
+  #     - "3001:3001"
+  #   # UPDATE: Tambah db:create biar aman kalau DB belum ada
+  #   command: sh -c "(npx sequelize-cli db:create || true) && npx sequelize-cli db:migrate && node index.js"
+
+  api-services:
+    build:
+      context: ./api-services
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: saas-starterkit-db.c5mycw64syxg.ap-southeast-1.rds.amazonaws.com
+      DB_USER: administrator
+      DB_PASSWORD: echoAdza3205
+      DB_PORT: 3306
+      DB_NAME: saas-starterkit-db
+      # Mailer Config
+      SMTP_HOST: mailhog
+      SMTP_PORT: 587
+      SMTP_SECURE: "false"
+      FROM_EMAIL: "echotech8310@gmail.com"
+      SMTP_SERVICE: "gmail"
+      SMTP_USER: "echotech8310@gmail.com"
+      SMTP_PASS: "abcdefghijklmnop"
+    ports:
+      - "3001:3001"
+    depends_on:
+      mailer-services:
+        condition: service_started
+    command: sh -c "(npx sequelize-cli db:create || true) && npx sequelize-cli db:migrate && node index.js"
+
+  # publishing-services:
+  #   build:
+  #     context: ./publishing-services
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     DB_HOST: belajar-rds-db.c5mycw64syxg.ap-southeast-1.rds.amazonaws.com
+  #     DB_USER: administrator
+  #     DB_PASSWORD: echoAdza3205
+  #     DB_PORT: 3306
+  #     DB_NAME: publishing_db
+  #   ports:
+  #     - "3003:3003"
+  #   # UPDATE: Tambah db:create
+  #   command: sh -c "(npx sequelize-cli db:create || true) && npx sequelize-cli db:migrate && node index.js"
+
+volumes:
+  db-services:
