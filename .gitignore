@@ -1,5 +1,4 @@
 certbot/
-nginx/
 *.yaml
 *.yml
 *.sh
