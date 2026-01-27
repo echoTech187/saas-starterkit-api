@@ -1,5 +1,6 @@
 certbot/
 nginx/
-/.sh
-/.yml
-/*.sql
+*.yaml
+*.yml
+*.sh
+*.sql
