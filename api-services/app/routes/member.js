@@ -60,7 +60,7 @@ router.post('/login', (req, res) => {
         return res.status(400).json({ message: 'Email/password harus diisi' });
     }
     try {
-        const query = 'SELECT * FROM members WHERE  email = ? and user_status != 1 LIMIT 1';
+        const query = 'SELECT * FROM members WHERE  email = ?  LIMIT 1';
 
         db.execute(query, [username])
             .then(([rows]) => {
@@ -88,7 +88,7 @@ router.post('/login-with-google', (req, res) => {
         return res.status(400).json({ success: false, message: 'Email harus diisi' });
     }
     try {
-        const query = 'SELECT * FROM members WHERE email = ? and user_status != 1 LIMIT 1';
+        const query = 'SELECT * FROM members WHERE email = ? LIMIT 1';
         db.execute(query, [email])
             .then(([rows]) => {
                 if (rows.length > 0) {
