@@ -17,6 +17,6 @@ app.use((req, res, next) => {
 
 app.use('/api/v1', memberRouter);
 
-app.listen(process.env.APP_PORT || 3000, () => {
-    console.log('Member services listening on port 3000');
+app.listen(process.env.APP_PORT, () => {
+    console.log('Member services listening on port ' + process.env.APP_PORT);
 });

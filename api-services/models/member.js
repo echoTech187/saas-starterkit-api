@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     provider: DataTypes.STRING,
     provider_type: DataTypes.STRING,
     user_status: DataTypes.BIGINT,
+    is_verified: DataTypes.ENUM('Y', 'N'),
     otp_code: DataTypes.STRING,
     otp_expires_at: DataTypes.DATE,
     refresh_token: DataTypes.TEXT

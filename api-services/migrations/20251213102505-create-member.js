@@ -62,6 +62,22 @@ module.exports = {
         defaultValue: 1,
         type: Sequelize.BIGINT
       },
+      is_verified: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      otp_code: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
+      otp_expires_at: {
+        allowNull: true,
+        type: Sequelize.DATE
+      },
+      refresh_token: {
+        allowNull: true,
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

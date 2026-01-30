@@ -43,3 +43,6 @@ yarn-error.log*
 #next-env.d.ts
 
 certificates
+/certificates
+/config/config.js
+/config/config.json
