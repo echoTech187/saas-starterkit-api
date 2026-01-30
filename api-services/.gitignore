@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/nginx
 
 # next.js
 /.next/
@@ -39,10 +40,6 @@ yarn-error.log*
 .vercel
 
 # typescript
-#*.tsbuildinfo
-#next-env.d.ts
+*.tsbuildinfo
+next-env.d.ts
 
-certificates
-/certificates
-/config/config.js
-/config/config.json
