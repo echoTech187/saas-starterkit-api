@@ -125,7 +125,7 @@ router.post('/register', (req, res) => {
     }
 
     try {
-        const searchUserQuery = 'SELECT * FROM members WHERE email = ? LIMIT 1';
+        const searchUserQuery = 'SELECT * FROM members WHERE email = ? AND user_status > 1 LIMIT 1';
 
         db.execute(searchUserQuery, [req.body.email])
             .then(async ([rows]) => {
@@ -194,7 +194,7 @@ router.post('/register', (req, res) => {
                     const provider_type = 'credentials';
                     const codeVerify = randomInt(100000, 999999);
                     const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
-                    const query = 'INSERT INTO members (slug, username, email,password,provider_account_id,provider,provider_type, otp_code, otp_expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ? , ?)';
+                    const query = 'INSERT INTO members (slug, username, email,password,provider_account_id,provider,provider_type, otp_code, otp_expires_at, user_status, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ? , ?,1, "N")';
                     db.execute(query, [slug, username, req.body.email, hashedPassword, provider_account_id, provider, provider_type, codeVerify, codeExpired])
                         .then(async (result) => {
 
@@ -308,7 +308,7 @@ router.post('/register-with-google', (req, res) => {
                 } else {
                     const codeVerify = randomInt(100000, 999999);
                     const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
-                    const query = 'INSERT INTO members (slug, username,fullname, email,image,provider_account_id,provider,provider_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+                    const query = 'INSERT INTO members (slug, username,fullname, email,image,provider_account_id,provider,provider_type, user_status, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?,1, "N")';
                     db.execute(query, [slug, username, fullname, email, image, provider_account_id, provider, provider_type])
                         .then(async (result) => {
                             return res.status(200).json({
