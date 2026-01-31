@@ -362,12 +362,14 @@ router.get('/logout', (req, res) => {
 router.get('/profile', (req, res) => {
     const authorization = req.headers['authorization'];
     const token = authorization.split(' ')[1];
+    console.log(token);
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
     try {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(decoded);
         const query = 'SELECT fullname, username, email, phone_number FROM members WHERE slug =? LIMIT 1';
         db.execute(query, [decoded.slug])
             .then(([rows]) => {
