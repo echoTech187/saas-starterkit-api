@@ -9,8 +9,9 @@ module.exports = {
     dialectOptions: {
       ssl: {
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true
-      }
+        rejectUnauthorized: true,
+        ca: process.env.TIDB_CA_CERT?.replace(/\\n/gm, '\n'),
+      },
     },
     dialect: "mysql"
   },
@@ -23,8 +24,9 @@ module.exports = {
     dialectOptions: {
       ssl: {
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true
-      }
+        rejectUnauthorized: true,
+        ca: process.env.TIDB_CA_CERT?.replace(/\\n/gm, '\n'),
+      },
     },
     dialect: "mysql"
   },
@@ -37,8 +39,9 @@ module.exports = {
     dialectOptions: {
       ssl: {
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true
-      }
+        rejectUnauthorized: true,
+        ca: process.env.TIDB_CA_CERT?.replace(/\\n/gm, '\n'),
+      },
     },
     dialect: "mysql"
   }

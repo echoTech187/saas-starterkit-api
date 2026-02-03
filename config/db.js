@@ -8,9 +8,9 @@ const pool = mysql.createPool({
     port: process.env.TIDB_PORT,
     ssl: {
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true
+        rejectUnauthorized: true,
+        ca: process.env.TIDB_CA_CERT?.replace(/\\n/gm, '\n'),
     },
-    sslMode: 'VERIFY_IDENTITY',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
