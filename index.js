@@ -12,6 +12,6 @@ app.use('/public', express.static('static'));
 
 app.use('/api/v1', memberRouter);
 
-app.listen(process.env.APP_PORT, () => {
+app.listen(process.env.APP_PORT, '0.0.0.0', () => {
     console.log('Member services listening on port ' + process.env.APP_PORT);
 });
