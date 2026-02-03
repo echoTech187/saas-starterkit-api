@@ -1,11 +1,17 @@
 const mysql = require('mysql2/promise');
 require('dotenv').config();
 const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || 'root',
-    database: process.env.DB_NAME || 'member_db',
-    port: process.env.DB_HOST ? 3306 : 3307,
+    username: process.env.TIDB_USER,
+    password: process.env.TIDB_PASSWORD,
+    database: process.env.TIDB_NAME,
+    host: process.env.TIDB_HOST,
+    port: process.env.TIDB_PORT,
+    dialectOptions: {
+        ssl: {
+            minVersion: 'TLSv1.2',
+            rejectUnauthorized: true
+        }
+    },
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
