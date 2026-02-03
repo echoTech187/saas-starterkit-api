@@ -1,7 +1,7 @@
 const express = require('express');
 const { where } = require('../lib/utils/queryBuilder.js');
 const sendMail = require('../lib/utils/sendMail.js');
-const db = require('../config/db.js');
+const db = require('../../config/db.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
