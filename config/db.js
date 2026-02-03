@@ -6,12 +6,11 @@ const pool = mysql.createPool({
     database: process.env.TIDB_NAME,
     host: process.env.TIDB_HOST,
     port: process.env.TIDB_PORT,
-    dialectOptions: {
-        ssl: {
-            minVersion: 'TLSv1.2',
-            rejectUnauthorized: true
-        }
+    ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true
     },
+    sslMode: 'VERIFY_IDENTITY',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
