@@ -7,10 +7,11 @@ module.exports = {
     host: process.env.TIDB_HOST,
     port: process.env.TIDB_PORT,
     dialectOptions: {
+      user: process.env.TIDB_USER,
       ssl: {
+
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true,
-        ca: process.env.TIDB_CA_CERT?.replace(/\\n/gm, '\n'),
+        rejectUnauthorized: true
       },
     },
     dialect: "mysql"
@@ -22,10 +23,11 @@ module.exports = {
     host: process.env.TIDB_HOST,
     port: process.env.TIDB_PORT,
     dialectOptions: {
+      user: process.env.TIDB_USER,
       ssl: {
+
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true,
-        ca: process.env.TIDB_CA_CERT?.replace(/\\n/gm, '\n'),
+        rejectUnauthorized: true
       },
     },
     dialect: "mysql"
@@ -37,10 +39,10 @@ module.exports = {
     host: process.env.TIDB_HOST,
     port: process.env.TIDB_PORT,
     dialectOptions: {
+      user: process.env.TIDB_USER,
       ssl: {
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true,
-        ca: process.env.TIDB_CA_CERT?.replace(/\\n/gm, '\n'),
+        rejectUnauthorized: true
       },
     },
     dialect: "mysql"
