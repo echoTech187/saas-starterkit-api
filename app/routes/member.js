@@ -125,7 +125,7 @@ router.post('/register', (req, res) => {
     }
 
     try {
-        const searchUserQuery = 'SELECT * FROM members WHERE email = ? AND user_status > 1 LIMIT 1';
+        const searchUserQuery = 'SELECT * FROM members WHERE email = ? LIMIT 1';
 
         db.execute(searchUserQuery, [req.body.email])
             .then(async ([rows]) => {
@@ -260,61 +260,61 @@ router.post('/register-with-google', (req, res) => {
         db.execute(searchUserQuery, [email])
             .then(async ([rows]) => {
                 if (rows.length > 0) {
-                    if (rows[0].is_verified == 'N') {
-                        let hashedPassword = rows[0].password;
-                        if (req.body.password) {
-                            hashedPassword = await bcrypt.hash(req.body.password, 10);
+                    // if (rows[0].is_verified == 'N') {
+                    let hashedPassword = rows[0].password;
+                    if (req.body.password) {
+                        hashedPassword = await bcrypt.hash(req.body.password, 10);
+                    }
+
+                    const codeVerify = randomInt(100000, 999999);
+                    const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
+                    const query = "UPDATE members SET user_status = ?, password = ? , otp_code = ?, otp_expires_at = ? WHERE email = ?";
+                    await db.execute(query, [1, hashedPassword, codeVerify, codeExpired, email]).then(async () => {
+                        const mailResult = await sendMail({
+                            to: email,
+                            templateUrl: 'otp.html',
+                            subject: 'OTP Verification',
+                            action_url: ``,
+                            html: {
+                                title: 'Kode Verifikasi anda',
+                                description: codeVerify.toString(),
+                            }
+                        });
+                        if (mailResult.status === false) {
+                            return res.status(500).json({
+                                success: false, message: mailResult.message, error: mailResult.error
+                            });
+                        }
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Registrasi berhasil',
+                            user: {
+                                id: rows[0].id,
+                                slug: rows[0].slug,
+                                fullname: rows[0].fullname,
+                                username: rows[0].username,
+                                email: req.body.email,
+                                phone_number: rows[0].phone_number,
+                                image: rows[0].image,
+                                user_status: rows[0].user_status
+                            }
+                        });
+                    }).catch((err) => {
+                        if (err instanceof Error) {
+                            return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 1', error: err.message });
+                        } else {
+                            return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 2', error: "Internal server error" });
                         }
 
-                        const codeVerify = randomInt(100000, 999999);
-                        const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
-                        const query = "UPDATE members SET user_status = ?, password = ? , otp_code = ?, otp_expires_at = ? WHERE email = ?";
-                        await db.execute(query, [1, hashedPassword, codeVerify, codeExpired, email]).then(async () => {
-                            const mailResult = await sendMail({
-                                to: email,
-                                templateUrl: 'otp.html',
-                                subject: 'OTP Verification',
-                                action_url: ``,
-                                html: {
-                                    title: 'Kode Verifikasi anda',
-                                    description: codeVerify.toString(),
-                                }
-                            });
-                            if (mailResult.status === false) {
-                                return res.status(500).json({
-                                    success: false, message: mailResult.message, error: mailResult.error
-                                });
-                            }
-                            return res.status(200).json({
-                                success: true,
-                                message: 'Registrasi berhasil',
-                                user: {
-                                    id: rows[0].id,
-                                    slug: rows[0].slug,
-                                    fullname: rows[0].fullname,
-                                    username: rows[0].username,
-                                    email: req.body.email,
-                                    phone_number: rows[0].phone_number,
-                                    image: rows[0].image,
-                                    user_status: rows[0].user_status
-                                }
-                            });
-                        }).catch((err) => {
-                            if (err instanceof Error) {
-                                return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 1', error: err.message });
-                            } else {
-                                return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 2', error: "Internal server error" });
-                            }
-
-                        });
-                    } else {
-                        return res.status(400).json({ success: false, message: 'Email telah terdaftar. Silahkan login.' });
-                    }
+                    });
+                    // } else {
+                    //     return res.status(400).json({ success: false, message: 'Email telah terdaftar. Silahkan login.' });
+                    // }
                 } else {
                     const codeVerify = randomInt(100000, 999999);
                     const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
-                    const query = 'INSERT INTO members (slug, username,fullname, email,image,provider_account_id,provider,provider_type, user_status, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?,1, "N")';
-                    db.execute(query, [slug, username, fullname, email, image, provider_account_id, provider, provider_type])
+                    const query = 'INSERT INTO members (slug, username,fullname, email,image,provider_account_id,provider,provider_type, user_status, is_verified, otp_code, otp_expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?,1, "N", ?, ?)';
+                    db.execute(query, [slug, username, fullname, email, image, provider_account_id, provider, provider_type, codeVerify, codeExpired])
                         .then(async (result) => {
                             return res.status(200).json({
                                 success: true,
@@ -512,6 +512,7 @@ router.put('/register-completed/:email', (req, res) => {
     const query = 'SELECT * FROM members WHERE email = ? LIMIT 1';
     db.execute(query, [email])
         .then(([rows]) => {
+            console.log(rows);
             if (rows.length > 0) {
                 if (rows[0].otp_code == codeVerify) {
                     if (rows[0].otp_expires_at < new Date()) {

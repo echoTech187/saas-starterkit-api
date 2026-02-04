@@ -4,7 +4,18 @@ const cors = require('cors');
 const memberRouter = require('./app/routes/member.js');
 
 const app = express();
-app.use(cors());
+app.use(cors(
+    {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+        optionsSuccessStatus: 200,
+        preflightContinue: false,
+        maxAge: 86400,
+        exposedHeaders: ['Set-Cookie']
+    }
+));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
