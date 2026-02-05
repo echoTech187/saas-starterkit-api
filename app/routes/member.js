@@ -443,7 +443,7 @@ router.get('/check-user-by-email', (req, res) => {
         return res.status(400).json({ message: 'Email is required' });
     }
     try {
-        const query = 'SELECT * FROM members WHERE email = ? LIMIT 1';
+        const query = 'SELECT * FROM members WHERE email = ? and user_status > 1 LIMIT 1';
         db.execute(query, [email])
             .then(([rows]) => {
                 if (rows.length > 0) {
