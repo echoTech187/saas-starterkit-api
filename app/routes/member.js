@@ -260,56 +260,56 @@ router.post('/register-with-google', (req, res) => {
         db.execute(searchUserQuery, [email])
             .then(async ([rows]) => {
                 if (rows.length > 0) {
-                    // if (rows[0].is_verified == 'N') {
-                    let hashedPassword = rows[0].password;
-                    if (req.body.password) {
-                        hashedPassword = await bcrypt.hash(req.body.password, 10);
-                    }
+                    if (rows[0].is_verified == 'N') {
+                        let hashedPassword = rows[0].password;
+                        if (req.body.password) {
+                            hashedPassword = await bcrypt.hash(req.body.password, 10);
+                        }
 
-                    const codeVerify = randomInt(100000, 999999);
-                    const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
-                    const query = "UPDATE members SET user_status = ?, password = ? , otp_code = ?, otp_expires_at = ? WHERE email = ?";
-                    await db.execute(query, [1, hashedPassword, codeVerify, codeExpired, email]).then(async () => {
-                        const mailResult = await sendMail({
-                            to: email,
-                            templateUrl: 'otp.html',
-                            subject: 'OTP Verification',
-                            action_url: ``,
-                            html: {
-                                title: 'Kode Verifikasi anda',
-                                description: codeVerify.toString(),
-                            }
-                        });
-                        if (mailResult.status === false) {
-                            return res.status(500).json({
-                                success: false, message: mailResult.message, error: mailResult.error
+                        const codeVerify = randomInt(100000, 999999);
+                        const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
+                        const query = "UPDATE members SET user_status = ?, password = ? , otp_code = ?, otp_expires_at = ? WHERE email = ?";
+                        await db.execute(query, [1, hashedPassword, codeVerify, codeExpired, email]).then(async () => {
+                            const mailResult = await sendMail({
+                                to: email,
+                                templateUrl: 'otp.html',
+                                subject: 'OTP Verification',
+                                action_url: ``,
+                                html: {
+                                    title: 'Kode Verifikasi anda',
+                                    description: codeVerify.toString(),
+                                }
                             });
-                        }
-                        return res.status(200).json({
-                            success: true,
-                            message: 'Registrasi berhasil',
-                            user: {
-                                id: rows[0].id,
-                                slug: rows[0].slug,
-                                fullname: rows[0].fullname,
-                                username: rows[0].username,
-                                email: req.body.email,
-                                phone_number: rows[0].phone_number,
-                                image: rows[0].image,
-                                user_status: rows[0].user_status
+                            if (mailResult.status === false) {
+                                return res.status(500).json({
+                                    success: false, message: mailResult.message, error: mailResult.error
+                                });
                             }
-                        });
-                    }).catch((err) => {
-                        if (err instanceof Error) {
-                            return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 1', error: err.message });
-                        } else {
-                            return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 2', error: "Internal server error" });
-                        }
+                            return res.status(200).json({
+                                success: true,
+                                message: 'Registrasi berhasil',
+                                user: {
+                                    id: rows[0].id,
+                                    slug: rows[0].slug,
+                                    fullname: rows[0].fullname,
+                                    username: rows[0].username,
+                                    email: req.body.email,
+                                    phone_number: rows[0].phone_number,
+                                    image: rows[0].image,
+                                    user_status: rows[0].user_status
+                                }
+                            });
+                        }).catch((err) => {
+                            if (err instanceof Error) {
+                                return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 1', error: err.message });
+                            } else {
+                                return res.status(500).json({ success: false, message: 'Terjadi kesalahan saat melakukan registrasi 2', error: "Internal server error" });
+                            }
 
-                    });
-                    // } else {
-                    //     return res.status(400).json({ success: false, message: 'Email telah terdaftar. Silahkan login.' });
-                    // }
+                        });
+                    } else {
+                        return res.status(400).json({ success: false, message: 'Email telah terdaftar. Silahkan login.' });
+                    }
                 } else {
                     const codeVerify = randomInt(100000, 999999);
                     const codeExpired = new Date(Date.now() + 60 * 60 * 1000);
